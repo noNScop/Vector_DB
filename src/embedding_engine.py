@@ -1,8 +1,6 @@
-import os
 import torch
 from typing import Union
 from transformers import AutoModel, AutoTokenizer, logging
-from sklearn.preprocessing import normalize
 from sentence_transformers import SentenceTransformer
 import warnings
 
