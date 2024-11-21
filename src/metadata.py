@@ -6,7 +6,7 @@ import os
 # "page": page number in the document,
 # "text": text associated with it,
 class Metadata:
-    def __init__(self, metadata_path: str = "data/metadata.json"):
+    def __init__(self, metadata_path: str):
         self.metadata_path = metadata_path
         if os.path.exists(metadata_path):
             with open(metadata_path, 'r', encoding='utf-8') as f:

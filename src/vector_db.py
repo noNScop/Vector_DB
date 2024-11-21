@@ -2,7 +2,7 @@ import faiss
 import os
 
 class VectorDB:
-    def __init__(self, embedding_dim: int = None, index_path: str = "data/vector_db.bin"):
+    def __init__(self, embedding_dim: int, index_path: str):
         self.index_path = index_path
         if os.path.exists(index_path):
             self.index = faiss.read_index(index_path)

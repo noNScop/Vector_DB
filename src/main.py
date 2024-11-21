@@ -1,6 +1,6 @@
 import pymupdf
 import os
-from embedding_engine import EmbeddingEngine
+from embedding_engine import *
 from vector_db import VectorDB
 from metadata import Metadata
 
@@ -24,9 +24,35 @@ def read_document(doc, chunks, doc_name):
     return chunks
 
 def main():
-    engine = EmbeddingEngine()
-    vector_db = VectorDB(embedding_dim = engine.embedding_dim)
-    metadata = Metadata()
+    while True:
+        print()
+        print("Select engine:")
+        print("[1. NoInstruct-small-Embedding-v0 (small)]")
+        print("[2. stella_en_400M_v5 (big)]")
+        print()
+
+        choice = input()
+
+        try:
+            choice = int(choice)
+        except:
+            print("Invalid input")
+            continue
+
+        if choice == 1:
+            engine = NoInstructSmallV0()
+            vector_db = VectorDB(engine.embedding_dim, "data/vector_db_NoInstruct")
+            metadata = Metadata("data/metadata_NoInstruct.json")
+            break
+
+        elif choice == 2:
+            engine = Stella400MV5()
+            vector_db = VectorDB(engine.embedding_dim, "data/vector_db_Stella")
+            metadata = Metadata("data/metadata_Stella.json")
+            break
+
+        else:
+            print("Wrong choice.")
 
     while True:
         print()
@@ -34,11 +60,18 @@ def main():
         print("[1. Add document to database]")
         print("[2. Query the database]")
         print("[3. Clear the database]")
-        print("[4. Save the database]")
-        print("[5. Exit]")
+        print("[4. Save the database to files]")
+        print("[5. Remove the database files]")
+        print("[6. Exit]")
         print()
         
-        choice = int(input())
+        choice = input()
+
+        try:
+            choice = int(choice)
+        except:
+            print("Invalid input")
+            continue
 
         if choice == 1:
             doc_path = input("PDF document path: ")
@@ -100,6 +133,22 @@ def main():
             metadata.save()
 
         elif choice == 5:
+            if os.path.exists(vector_db.index_path):
+                os.remove(vector_db.index_path)
+                print("Vectors file removed.")
+            else:
+                print("Couldn't find vectors file.")
+
+            if os.path.exists(metadata.metadata_path):
+                os.remove(metadata.metadata_path)
+                print("Metadata file removed.")
+            else:
+                print("Couldn't find metadata file.")
+
+            if os.path.exists("data") and not os.listdir("data"):
+                os.rmdir("data")
+
+        elif choice == 6:
             break;
 
         else:

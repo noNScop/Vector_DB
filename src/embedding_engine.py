@@ -1,8 +1,16 @@
+import os
 import torch
 from typing import Union
-from transformers import AutoModel, AutoTokenizer
+from transformers import AutoModel, AutoTokenizer, logging
+from sklearn.preprocessing import normalize
+from sentence_transformers import SentenceTransformer
+import warnings
 
-class EmbeddingEngine:
+# Suppress warnings related to stella model
+warnings.filterwarnings("ignore", category=FutureWarning, module="transformers.modeling_utils")
+logging.set_verbosity_error()
+
+class NoInstructSmallV0:
     def __init__(self):
         self.embedding_dim = 384
         self.model = AutoModel.from_pretrained("avsolatorio/NoInstruct-small-Embedding-v0")
@@ -40,3 +48,25 @@ class EmbeddingEngine:
         vectors = vectors.sum(dim=1) / inp["attention_mask"].sum(dim=-1).view(-1, 1)
 
         return vectors
+    
+class Stella400MV5:
+    def __init__(self):
+        self.embedding_dim = 1024
+        self.model = SentenceTransformer(
+            "dunzhang/stella_en_400M_v5",
+            trust_remote_code=True,
+            device="cpu",
+            config_kwargs={"use_memory_efficient_attention": False, "unpad_inputs": False}
+        )
+
+    def get_doc_embedding(self, text: Union[str, list[str]]):
+        if isinstance(text, str):
+            text = [text]
+
+        return self.model.encode(text, show_progress_bar=True)
+
+    def get_query_embedding(self, text: Union[str, list[str]]):
+        if isinstance(text, str):
+            text = [text]
+
+        return self.model.encode(text, prompt_name="s2p_query")
