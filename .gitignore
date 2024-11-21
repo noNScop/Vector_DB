@@ -1,0 +1,6 @@
+.ipynb_checkpoints/
+vector_DB_env/
+data/
+
+__pycache__
+*.pdf

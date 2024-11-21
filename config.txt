@@ -1,0 +1,26 @@
+brew install libomp
+brew install swig
+brew install gflags
+
+git clone https://github.com/facebookresearch/faiss.git
+cd faiss
+git checkout fix_nightly_build
+
+cmake -B build \
+    -DFAISS_ENABLE_GPU=OFF \
+    -DPython_EXECUTABLE=$(which python3) \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DOpenMP_CXX_FLAGS="-I$(brew --prefix libomp)/include" \
+    -DOpenMP_CXX_LIB_NAMES="omp" \
+    -DOpenMP_omp_LIBRARY="$(brew --prefix libomp)/lib/libomp.dylib" \
+    -DSWIG_EXECUTABLE=$(which swig) \
+    -DOpenMP_C_FLAGS="-I$(brew --prefix libomp)/include" \
+    -DOpenMP_C_LIB_NAMES="omp" \
+    -DCMAKE_PREFIX_PATH=$(brew --prefix gflags)
+
+cd build
+make -j7
+cd ..
+(cd build/faiss/python/ ; python3 setup.py build)
+
+pip install faiss-cpu
