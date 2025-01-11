@@ -35,6 +35,8 @@ This project is a simple and efficient tool for creating and querying a vector d
 
 ### Setup
 
+I recommend using `Python 3.12.7` or a similar version. Newer or slightly older versions of Python should work fine, but the specific version used in development was `3.12.7`.
+
 To set up the project locally, follow these steps:
 
 1. **Clone the repository**:
