@@ -89,6 +89,7 @@ Here’s a quick overview of the project structure:
 Vector_DB/
 ├── data/              # Directory for saving database files
 ├── src/               # Source code
+├── requirements.txt   # required python libraries
 └── README.md          # Project description
 ```
 
