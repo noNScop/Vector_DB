@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 4. **Run the app**: To run the application, simply execute:
 
-`python main.py`
+`python src/main.py`
 
 ## Project Structure
 Here’s a quick overview of the project structure:
