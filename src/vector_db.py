@@ -22,3 +22,6 @@ class VectorDB:
 
     def new_index(self, embedding_dim):
         self.index = faiss.IndexFlatIP(embedding_dim)
+
+    def is_empty(self):
+        return not self.index.ntotal

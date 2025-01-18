@@ -58,11 +58,12 @@ def main():
         print()
         print("Select an option:")
         print("[1. Add document to database]")
-        print("[2. Query the database]")
-        print("[3. Clear the database]")
-        print("[4. Save the database to files]")
-        print("[5. Remove the database files]")
-        print("[6. Exit]")
+        print("[2. Add all documents from the directory to database]")
+        print("[3. Query the database]")
+        print("[4. Clear the database]")
+        print("[5. Save the database to files]")
+        print("[6. Remove the database files]")
+        print("[7. Exit]")
         print()
         
         choice = input()
@@ -95,7 +96,6 @@ def main():
             read_document(doc, chunks, doc_name)
             doc.close()
 
-            # Add batch_size chunks are being added at once for efficiency
             idx = 0
             batch_size = 1024
             while len(chunks) > idx:
@@ -109,7 +109,54 @@ def main():
 
                 idx += batch_size
 
+            print(f"Succesfully added {doc_name} to the database.")
         elif choice == 2:
+            dir_path = input("directory with PDFs path: ")
+            if not os.path.exists(dir_path):
+                print("Invalid directory path.")
+                continue
+
+            pdf_files = [f for f in os.listdir(dir_path) if f.lower().endswith('.pdf')]
+
+            if not pdf_files:
+                print("No PDF documents found in the directory.")
+                continue
+            
+            # Sort pdf files for clarity
+            pdf_files.sort()
+            for pdf_file in pdf_files:
+                doc_path = os.path.join(dir_path, pdf_file)
+                doc_name = os.path.basename(doc_path)
+
+                try:
+                    doc = pymupdf.open(doc_path)
+                except Exception as e:
+                    print(f"Error opening document {doc_name}: {e}")
+                    continue
+
+                chunks = []
+                read_document(doc, chunks, doc_name)
+                doc.close()
+
+                idx = 0
+                batch_size = 1024
+                while len(chunks) > idx:
+                    texts = []
+                    for i in range(idx, min(idx+batch_size, len(chunks))):
+                        texts.append(chunks[i]["text"])
+                        metadata.add(chunks[i])
+
+                    embeddings = engine.get_doc_embedding(texts)
+                    vector_db.add(embeddings)
+
+                    idx += batch_size
+
+                print(f"Succesfully added {doc_name} to the database.")
+        elif choice == 3:
+            if vector_db.is_empty():
+                print("Database is empty, add document first.")
+                continue
+
             query = input("Query: ")
             vector = engine.get_query_embedding(query)
             output = vector_db.search(vector)
@@ -124,15 +171,15 @@ def main():
                     print(metadata.metadata[idx]["text"])
                 print()
 
-        elif choice == 3:
+        elif choice == 4:
             metadata.clear()
             vector_db.new_index(engine.embedding_dim)
 
-        elif choice == 4:
+        elif choice == 5:
             vector_db.save()
             metadata.save()
 
-        elif choice == 5:
+        elif choice == 6:
             if os.path.exists(vector_db.index_path):
                 os.remove(vector_db.index_path)
                 print("Vectors file removed.")
@@ -148,7 +195,7 @@ def main():
             if os.path.exists("data") and not os.listdir("data"):
                 os.rmdir("data")
 
-        elif choice == 6:
+        elif choice == 7:
             break;
 
         else:
