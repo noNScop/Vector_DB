@@ -156,8 +156,17 @@ def main():
             if vector_db.is_empty():
                 print("Database is empty, add document first.")
                 continue
+            
+            print("Query the database (press Enter on an empty line to finish): ")
+            query = []
+            while True:
+                inp = input()
+                if not inp:
+                    break
 
-            query = input("Query: ")
+                query.append(inp)
+
+            query = "".join(query)
             vector = engine.get_query_embedding(query)
             output = vector_db.search(vector)
             indices = output[1][0]
